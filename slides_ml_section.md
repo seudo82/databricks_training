@@ -1,383 +1,309 @@
 ---
 marp: true
 theme: default
-paginate: true
+paginate: false
 style: |
+  /* ── base (dark) ── */
   section {
-    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #1C1C1E;
+    color:      #F5F5F7;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
     font-size: 26px;
-    padding: 48px;
+    padding: 72px 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
-  h1 { color: #E55A2B; font-size: 2em; }
-  h2 { color: #1C3D5A; border-bottom: 2px solid #E55A2B; padding-bottom: 8px; }
-  h3 { color: #1C3D5A; }
-  code { background: #f0f4f8; padding: 2px 8px; border-radius: 4px; font-size: 0.85em; }
-  pre { background: #f0f4f8; border-left: 4px solid #E55A2B; padding: 16px; border-radius: 4px; }
+
+  /* ── light variant ── */
+  section.light {
+    background: #FFFFFF;
+    color: #1C1C1E;
+  }
+
+  /* ── hero: big centered text ── */
+  section.hero {
+    text-align: center;
+    align-items: center;
+  }
+
+  /* ── typography ── */
+  h1 {
+    font-size: 3.4em;
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1.05;
+    color: #F5F5F7;
+    margin: 0 0 20px 0;
+  }
+  section.light h1 { color: #1C1C1E; }
+  section.hero  h1 { color: #F5F5F7; }
+
+  h2 {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #E55A2B;
+    margin: 0 0 28px 0;
+    letter-spacing: -0.5px;
+  }
+  section.light h2 { color: #1C3D5A; }
+
+  p  { line-height: 1.55; margin: 6px 0; }
+  strong { color: #E55A2B; }
+  em     { color: #8E8E93; font-style: normal; }
+
+  /* ── code ── */
+  code {
+    font-family: 'Cascadia Code', 'Courier New', monospace;
+    font-size: 0.80em;
+    background: rgba(255,255,255,0.09);
+    color: #FFB340;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  section.light code {
+    background: #F0F4F8;
+    color: #1C3D5A;
+  }
+  pre {
+    background: rgba(255,255,255,0.05);
+    border-left: 3px solid #E55A2B;
+    padding: 20px 24px;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.78em;
+    line-height: 1.6;
+  }
+  section.light pre {
+    background: #F4F6F9;
+    border-left: 3px solid #E55A2B;
+  }
+  pre code { background: transparent; color: #F5F5F7; padding: 0; }
+  section.light pre code { color: #1C3D5A; }
+
+  /* ── tables ── */
   table { width: 100%; border-collapse: collapse; }
-  th { background: #1C3D5A; color: white; padding: 8px 12px; }
-  td { padding: 8px 12px; border-bottom: 1px solid #ddd; }
-  blockquote { border-left: 4px solid #E55A2B; padding-left: 16px; color: #555; background: #fff8f6; margin: 16px 0; }
-  .tag { background: #E55A2B; color: white; padding: 2px 10px; border-radius: 12px; font-size: 0.75em; }
+  th {
+    background: #E55A2B;
+    color: #FFFFFF;
+    padding: 12px 18px;
+    font-weight: 700;
+    text-align: left;
+  }
+  td {
+    padding: 10px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  section.light td { border-bottom: 1px solid #EBEBEB; }
+
+  /* ── blockquote ── */
+  blockquote {
+    border: none;
+    border-left: 3px solid #E55A2B;
+    padding: 4px 0 4px 28px;
+    font-size: 1.25em;
+    font-weight: 600;
+    line-height: 1.55;
+    color: #F5F5F7;
+    margin: 16px 0;
+  }
+  section.light blockquote { color: #1C1C1E; }
 ---
+
+<!--
+  ╔══════════════════════════════════════════╗
+  ║   SLIDE 1 — COVER                        ║
+  ╚══════════════════════════════════════════╝
+-->
+<!-- _class: hero -->
 
 # ML Engineer Overview
-## Predicting Booking Cancellations with Databricks
 
-**Wanderbricks Training Session — Module 4**
+**Predicting Booking Cancellations**
 
-*Dataset: `samples.wanderbricks`*
-
----
-
-## Agenda
-
-1. The business problem
-2. The Databricks ML lifecycle
-3. Explore data in Unity Catalog
-4. Feature engineering with Spark
-5. Train with MLflow autologging
-6. MLflow Experiment UI
-7. Evaluate the model
-8. Save and load the model
-9. CI/CD in Databricks
-10. Summary and next steps
-
-*Estimated time: 35–40 minutes*
+*Module 4 · Wanderbricks Training Session*
 
 ---
 
-## The Business Problem
+<!--
+  ╔══════════════════════════════════════════╗
+  ║   SLIDE 2 — THE CHALLENGE                ║
+  ╚══════════════════════════════════════════╝
+-->
 
-**Wanderbricks** — a fictional travel booking platform
+## The Challenge
 
-> "The customer ops team has flagged rising cancellation rates.  
-> Can we predict which new bookings are likely to cancel  
-> so we can intervene early?"
+> "Rising cancellation rates are hurting revenue.  
+> Can we predict which bookings will cancel  
+> before they do?"
 
-**ML question:** Binary classification
-- **Target:** `is_cancelled` (1 = cancelled, 0 = not cancelled)
-- **Use case:** Score new bookings at time of booking, not after
+Binary classification. Early intervention. Real business impact.
 
-**Business value:**
-- Send early incentives or reminders to at-risk bookings
-- Optimise inventory and revenue forecasting
-- Reduce last-minute gaps in the calendar
-
----
-
-## The Databricks ML Lifecycle
-
-```
-samples.wanderbricks        Feature           MLflow
-    (Unity Catalog)    →  Engineering  →   Autologging
-                           (Spark)          (tracking)
-                              |                 |
-                              v                 v
-                          sklearn RF      Experiment UI
-                          Classifier   (params, metrics,
-                              |           artifacts)
-                              v
-                        Model saved      CI/CD Pipeline
-                        to MLflow   →  (paid workspaces)
-                        run URI
-```
-
-**Three platforms, one workflow:** Spark + MLflow + Unity Catalog
+**Target:** `is_cancelled` — scored at booking time, not after.
 
 ---
 
-## The Dataset: `samples.wanderbricks`
+<!--
+  ╔══════════════════════════════════════════╗
+  ║   SLIDE 3 — THE DATA                     ║
+  ╚══════════════════════════════════════════╝
+-->
+<!-- _class: light -->
 
-Available in every Databricks workspace — no upload needed.
+## Zero Setup. Five Tables.
 
-| Table | What it contains |
+`samples.wanderbricks` is built into every Databricks workspace.
+
+| Table | Key signal |
 |---|---|
-| `bookings` | Booking ID, status, dates, amount, guests |
-| `users` | User profile, signup date, loyalty tier |
-| `properties` | Property type, location, average rating |
-| `payments` | Payment method, payment date |
-| `reviews` | Guest reviews — **not used** (data leakage) |
+| `bookings` | Dates, amount, status → **target** |
+| `users` | Tenure, loyalty tier → commitment |
+| `properties` | Type, rating → quality signal |
+| `payments` | Method, timing → intent signal |
 
-```sql
--- Run in a %sql cell to see all tables
-SHOW TABLES IN samples.wanderbricks
-```
+*`reviews` excluded — post-stay data is leakage.*
 
 ---
 
-## Section 1: Explore the Data
+<!--
+  ╔══════════════════════════════════════════╗
+  ║   SLIDE 4 — FEATURE ENGINEERING          ║
+  ╚══════════════════════════════════════════╝
+-->
+
+## 4 Tables. 13 Features. 1 Spark Job.
 
 ```python
-bookings_raw = spark.read.table('samples.wanderbricks.bookings')
-display(bookings_raw)
-```
-
-**`display()` — not `.show()`**
-
-| `.show()` | `display()` |
-|---|---|
-| Plain text output | Interactive table |
-| Fixed rows | Sortable, filterable |
-| No charts | Built-in chart builder |
-
-```sql
-%sql
-SELECT status, COUNT(*) AS booking_count
-FROM samples.wanderbricks.bookings
-GROUP BY status ORDER BY booking_count DESC
-```
-
-> Always run `DESCRIBE TABLE` first to confirm column names before feature engineering.
-
----
-
-## Section 2: Feature Engineering with Spark
-
-**Join strategy — `bookings` is the anchor (LEFT JOINs):**
-
-```
-bookings → users      (user tenure, age, loyalty tier)
-         → properties (property type, avg rating)
-         → payments   (payment method, days to payment)
-```
-
-**Why LEFT JOIN?** Preserves all bookings even if payment record is missing.
-
-**Why NOT join `reviews`?**
-> Reviews are written *after* the stay.  
-> Using them to predict cancellation = **data leakage**.
-
----
-
-## Section 2: Derived Features
-
-| Feature | Derivation | Signal |
-|---|---|---|
-| `is_cancelled` | `status == 'cancelled'` | **Target** |
-| `lead_time_days` | `check_in - booking_date` | Long lead = higher risk |
-| `length_of_stay` | `check_out - check_in` | Stay length pattern |
-| `booking_month` | `month(booking_date)` | Seasonality |
-| `user_tenure_days` | `booking - signup_date` | New user = higher risk |
-| `days_to_payment` | `payment - booking_date` | Delay = cancel signal |
-| `loyalty_tier` | Direct column | Loyal = lower risk |
-| `property_type` | Direct column | Type-specific patterns |
-| `payment_method` | Direct column | Method correlates with intent |
-
----
-
-## Section 2: Spark → Pandas Handoff
-
-```python
-df_features = df.select(*feature_cols)
-
-# Convert to Pandas for scikit-learn
-df_pd = df_features.toPandas()
-
-print('Cancellation rate: {:.1%}'.format(df_pd['is_cancelled'].mean()))
-```
-
-**Why this split?**
-
-| Spark | Pandas + sklearn |
-|---|---|
-| Heavy lifting — joins, derivations | Familiar ML code |
-| Scales to billions of rows | Simple `fit()` / `predict()` |
-| Same code in production | Works on free edition |
-
-In production: keep everything in Spark or use **Spark MLlib / MLflow with Spark UDFs**.
-
----
-
-## Section 3: MLflow Autologging
-
-```python
-mlflow.set_experiment('/Users/wanderbricks_cancellation')
-
-mlflow.sklearn.autolog(log_input_examples=True,
-                       log_model_signatures=True)
-
-with mlflow.start_run(run_name='rf_baseline_v1') as run:
-    rf = RandomForestClassifier(
-        n_estimators=100,
-        max_depth=8,
-        class_weight='balanced',  # minority class handling
-        random_state=42
-    )
-    rf.fit(X_train, y_train)
-    mlflow.log_metric('test_roc_auc', test_auc)
-```
-
-**`mlflow.sklearn.autolog()` captures automatically:**
-- All hyperparameters
-- Accuracy, F1, precision, recall
-- Model artifact + feature importance plot
-
----
-
-## Why `class_weight='balanced'`?
-
-**The imbalanced class problem:**
-
-```
-All bookings:   ████████████████░░░░  (15% cancelled)
-
-Without balance:  Model learns → always predict "not cancelled"
-                  Accuracy = 85% ✓   AUC = 0.50 ✗  (useless)
-
-With balanced:    Model learns the cancellation pattern
-                  Accuracy = 79% ✓   AUC = 0.82 ✓  (useful)
-```
-
-> **Accuracy is misleading for imbalanced classes.**  
-> AUC is the right metric — it measures ranking quality, not raw hit rate.
-
----
-
-## Section 4: MLflow Experiment UI
-
-> **Live demo — no new code**
-
-Navigate: **Experiments** (left sidebar) → **wanderbricks_cancellation**
-
-| Tab | What to show |
-|---|---|
-| **Parameters** | `n_estimators=100`, `max_depth=8`, `class_weight=balanced` |
-| **Metrics** | accuracy, F1, precision, recall, `test_roc_auc` |
-| **Artifacts** | Model file, `MLmodel` manifest, feature importance chart |
-
-**Key insight:**
-
-> This is your audit trail. Six months from now you know exactly  
-> what data, code, and parameters produced this model —  
-> without a spreadsheet.
-
-**Try:** Run training again with `n_estimators=50` → **Compare runs**
-
----
-
-## Section 5: Evaluate the Model
-
-**Three outputs — no more:**
-
-### 1. AUC Score
-```
-Test AUC: 0.84
-```
-
-### 2. Confusion Matrix
-Shows true positives, false positives, true negatives, false negatives visually.
-
-### 3. Feature Importance
-Which features drove the prediction most — useful for business discussion.
-
-**Not included (intentionally cut):**
-ROC curve, SHAP values, calibration plots — valuable, but out of scope for this session.
-
----
-
-## Section 6: Save and Load the Model
-
-**Free edition — load from run URI:**
-
-```python
-model_uri = 'runs:/' + run_id + '/model'
-loaded_model = mlflow.sklearn.load_model(model_uri)
-
-predictions = loaded_model.predict(X_test.head(5))
-```
-
-**Paid workspace — Unity Catalog model registry:**
-
-```python
-mlflow.set_registry_uri('databricks-uc')
-mlflow.register_model(model_uri, 'main.default.cancellation_predictor')
-
-client.set_registered_model_alias(
-    'main.default.cancellation_predictor', 'champion', version
+df = (
+    bookings
+    .join(users,      on='user_id',     how='left')
+    .join(properties, on='property_id', how='left')
+    .join(payments,   on='booking_id',  how='left')
+    .withColumn('lead_time_days',   datediff('check_in_date', 'booking_date'))
+    .withColumn('user_tenure_days', datediff('booking_date',  'signup_date'))
+    .withColumn('is_cancelled',     when(col('status') == 'cancelled', 1).otherwise(0))
 )
-
-# Stable production reference — never changes on version promotion
-mlflow.pyfunc.load_model('models:/main.default.cancellation_predictor@champion')
 ```
+
+Same code. Any cluster size. Any data volume.
 
 ---
 
-## Section 7: CI/CD in Databricks
+<!--
+  ╔══════════════════════════════════════════╗
+  ║   SLIDE 5 — MLFLOW HERO                  ║
+  ╚══════════════════════════════════════════╝
+-->
+<!-- _class: hero -->
 
+# One line.
+# Everything tracked.
+
+```python
+mlflow.sklearn.autolog()
 ```
-Developer pushes notebook to GitHub
-         |
-         v
-GitHub Actions triggers on PR / merge
-         |
-         v
-databricks bundle deploy  →  staging workspace
-         |
-         v
-Databricks Workflow runs tests
-(unit tests + model quality check)
-         |
-         v
-Pass: @champion alias promoted in prod
-         |
-         v
-Inference pipeline loads @champion  (no code changes)
-```
+
+Parameters · Metrics · Model artifact · Feature importance  
+*Automatically.*
 
 ---
 
-## CI/CD: Key Tools
+<!--
+  ╔══════════════════════════════════════════╗
+  ║   SLIDE 6 — THE RESULT                   ║
+  ╚══════════════════════════════════════════╝
+-->
+<!-- _class: light hero -->
 
-| Tool | Role |
+## The Result
+
+# AUC 0.84
+
+A model that always predicts *"not cancelled"* scores AUC **0.50**.  
+Ours scores **0.84** — it actually learned something.
+
+---
+
+<!--
+  ╔══════════════════════════════════════════╗
+  ║   SLIDE 7 — EXPERIMENT UI                ║
+  ╚══════════════════════════════════════════╝
+-->
+<!-- _class: light -->
+
+## Every Run, Fully Audited
+
+Navigate: **Experiments → wanderbricks_cancellation**
+
+| Captured automatically | How |
 |---|---|
-| **Databricks Asset Bundles (DABs)** | Infrastructure-as-code — `databricks.yml` defines notebooks, jobs, clusters |
-| **Databricks CLI** | Runs `databricks bundle deploy` from GitHub Actions |
-| **MLflow Model Registry** | Versioning, aliases (`@champion`), lineage — *paid feature* |
-| **Databricks Workflows** | Scheduled and event-triggered job orchestration |
+| `n_estimators`, `max_depth`, `class_weight` | `autolog()` |
+| accuracy, F1, precision, recall | `autolog()` |
+| Model artifact + feature importance plot | `autolog()` |
+| `test_roc_auc` | One `mlflow.log_metric()` call |
 
-**What you can do on free edition today:**
-- Version this notebook in Git via **Repos** (workspace sidebar)
-- Commit and push to GitHub
-- The multi-environment deployment step needs a trial/paid workspace
+*Six months from now, you'll know exactly what produced this model.*
 
 ---
 
-## Summary
+<!--
+  ╔══════════════════════════════════════════╗
+  ║   SLIDE 8 — SAVE & DEPLOY                ║
+  ╚══════════════════════════════════════════╝
+-->
 
-| Step | Tool | Key takeaway |
-|---|---|---|
-| Data access | `spark.read.table()` | No connection strings — governed by Unity Catalog |
-| Feature engineering | PySpark `withColumn()` | Scales to any data size |
-| Training | sklearn + `mlflow.autolog()` | One line = full experiment tracking |
-| Experiment tracking | MLflow UI | Reproducible, auditable, comparable |
-| Model saving | MLflow run URI | Portable; works on free edition |
-| Model registry | Unity Catalog (paid) | Stable `@champion` alias for production |
-| CI/CD | DABs + GitHub Actions | Automated, governed ML deployment |
+## Save. Load. Promote.
 
----
+**Free edition** — load directly from the run
+```python
+mlflow.sklearn.load_model('runs:/' + run_id + '/model')
+```
 
-## What to Try Next
-
-**In the notebook (try these now):**
-- Change `n_estimators` or `max_depth` → compare runs in the Experiment UI
-- Remove `class_weight='balanced'` → watch accuracy rise but AUC fall
-- Add more countries to the one-hot encoding
-
-**Explore after this session:**
-- **Databricks AutoML** — automated feature engineering + model selection
-- **MLflow Model Registry** — versioning and `@champion` aliases (trial workspace)
-- **Databricks Workflows** — schedule this notebook as an automated job
-- **Feature Store** — centralised, reusable feature definitions
+**Paid workspace** — stable alias, never change pipeline code
+```python
+mlflow.pyfunc.load_model(
+    'models:/main.default.cancellation_predictor@champion'
+)
+# Promote a new version? Move the alias. Done.
+```
 
 ---
 
-# Thank You
+<!--
+  ╔══════════════════════════════════════════╗
+  ║   SLIDE 9 — CI/CD                        ║
+  ╚══════════════════════════════════════════╝
+-->
 
-**Questions?**
+## From Notebook to Production
 
-*Module 4 — ML Engineer Overview*  
-*Wanderbricks Training Session*
+```
+Push to GitHub
+      ↓
+GitHub Actions  →  databricks bundle deploy  →  staging workspace
+      ↓
+Automated tests pass  →  @champion alias promoted in prod
+      ↓
+Inference pipeline loads @champion  —  no code changes ever
+```
 
-> Notebook: `04_ML_Cancellation_Predictor.ipynb`  
-> Dataset: `samples.wanderbricks`  
-> Workspace: Databricks Individual (free) edition
+*Git versioning works today on free edition.  
+Multi-environment CI/CD requires a trial or paid workspace.*
+
+---
+
+<!--
+  ╔══════════════════════════════════════════╗
+  ║   SLIDE 10 — CLOSE                       ║
+  ╚══════════════════════════════════════════╝
+-->
+<!-- _class: hero -->
+
+**Spark** handles the data at any scale.
+
+**MLflow** tracks every experiment automatically.
+
+**Unity Catalog** governs model versions in production.
+
+<br>
+
+*Notebook: `04_ML_Cancellation_Predictor.ipynb`*
