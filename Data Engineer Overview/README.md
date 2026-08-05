@@ -51,8 +51,6 @@ Each notebook is self-contained and can be run individually or chained as a Data
 
 **`Schema.ipynb`** — Creates the Bronze, Silver, and Gold tables schemas.
  
-**`Permission.ipynb`** — Configures Unity Catalog grants per group, applies row-level security.
- 
 **`00_raw_bookings.sql`** — Entry point. Connects to the source (CSV or `samples.wanderbricks.bookings`) and creates a raw staging view with no modifications.
  
 **`01_bronze_bookings.sql`** — Ingests raw source data into a Bronze Delta table as-is. No transformations. Acts as the pipeline's source of truth for full reprocessing.
@@ -60,6 +58,9 @@ Each notebook is self-contained and can be run individually or chained as a Data
 **`02_silver_bookings.sql`** — Cleans and standardises the Bronze data: type casting, null handling, deduplication, and a derived `stay_duration` column. Output is validated and ready for analysis.
  
 **`03_gold_bookings.sql`** — Aggregates Silver data into business-level metrics (revenue by status, average booking value, occupancy). The layer that feeds dashboards and downstream consumers.
+
+**`Permission.ipynb`** — Configures Unity Catalog grants per group, applies row-level security.
+
   
 ---
 
