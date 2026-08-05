@@ -34,10 +34,10 @@ The full Wanderbricks schema also includes related tables — `users`, `hosts`, 
 ---
 ## Pipeline Structure
  
-The `Demo Pipeline/` folder contains notebooks that implement the pipeline stages:
+The `Demo Data Engineering Pipeline/` folder contains notebooks that implement the pipeline stages:
  
 ```
-Demo Pipeline/
+Demo Data Engineering Pipeline/
 ├── 1_Ingest        # Load raw CSV / source table into the Bronze layer
 ├── 2_Transform     # Clean and enrich data into the Silver layer
 └── 3_Aggregate     # Build analytics-ready Gold layer tables
