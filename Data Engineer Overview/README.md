@@ -46,3 +46,40 @@ Demo Pipeline/
 Each notebook is self-contained and can be run individually or chained as a Databricks Workflow.
  
 ---
+
+### Notebook Briefs
+ 
+**`00_raw_bookings.sql`** — Entry point. Connects to the source (CSV or `samples.wanderbricks.bookings`) and creates a raw staging view with no modifications.
+ 
+**`01_bronze_bookings.sql`** — Ingests raw source data into a Bronze Delta table as-is. No transformations. Acts as the pipeline's source of truth for full reprocessing.
+ 
+**`02_silver_bookings.sql`** — Cleans and standardises the Bronze data: type casting, null handling, deduplication, and a derived `stay_duration` column. Output is validated and ready for analysis.
+ 
+**`03_gold_bookings.sql`** — Aggregates Silver data into business-level metrics (revenue by status, average booking value, occupancy). The layer that feeds dashboards and downstream consumers.
+ 
+---
+ 
+## Setup Notebooks
+ 
+**`Schema.ipynb`** — Creates the Bronze, Silver, and Gold tables schemas.
+ 
+**`Permission.ipynb`** — Configures Unity Catalog grants per group, applies row-level security.
+ 
+---
+
+## Repository Structure
+ 
+```
+Data Engineer Overview/
+├── Demo Data Engineering Pipeline/
+│   ├── 00_raw_bookings.sql           # Source data
+│   ├── 01_bronze_bookings.sql        # Bronze layer
+│   ├── 02_silver_bookings.sql        # Silver layer
+│   └── 03_gold_bookings.sql          # Gold layer
+├── Schema.ipynb                      # Schema exploration & Delta table creation
+├── Permission.ipynb                  # Unity Catalog grants, row & column security
+├── wanderbricks_bookings_demo.csv    # Sample bookings data (55 rows)
+└── README.md
+```
+ 
+---
